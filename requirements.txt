@@ -1,0 +1,62 @@
+# Core Requirements
+requests>=2.28.0
+psutil>=5.9.0
+paramiko>=3.0.0
+scapy>=2.5.0
+qrcode>=7.4.0
+pyshorteners>=1.0.1
+python-whois>=0.8.0
+selenium>=4.15.0
+webdriver-manager>=4.0.0
+discord.py>=2.3.0
+telethon>=1.34.0
+slack-sdk>=3.23.0
+slack-socket-mode>=1.3.0
+pyOpenSSL>=23.0.0
+cryptography>=41.0.0
+
+# Database
+sqlite3
+
+# Web Server
+http.server
+
+# Utilities
+colorama>=0.4.6
+tqdm>=4.66.0
+termcolor>=2.4.0
+prettytable>=3.9.0
+python-nmap>=0.7.1
+
+# Security & Crypto
+pycryptodome>=3.19.0
+pycryptodomex>=3.19.0
+rsa>=4.9
+ecdsa>=0.18.0
+
+# Network
+netifaces>=0.11.0
+dnspython>=2.4.0
+pcapy>=0.11.0
+impacket>=0.11.0
+
+# Web Scraping
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+urllib3>=2.1.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code Quality
+black>=23.11.0
+flake8>=6.1.0
+mypy>=1.7.0
+
+# Docker & Container
+docker>=6.1.0

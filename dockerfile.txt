@@ -1,0 +1,132 @@
+# Multi-stage Dockerfile for SPOOF53
+# Stage 1: Builder
+FROM python:3.11-slim-bullseye as builder
+
+# Install system build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    python3-dev \
+    libffi-dev \
+    libssl-dev \
+    libpcap-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    net-tools \
+    iproute2 \
+    macchanger \
+    dsniff \
+    hping3 \
+    traceroute \
+    dnsutils \
+    whois \
+    curl \
+    wget \
+    netcat-openbsd \
+    nmap \
+    sqlite3 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install signal-cli
+RUN curl -L https://github.com/AsamK/signal-cli/releases/download/v0.12.3/signal-cli-0.12.3.tar.gz | tar -xz -C /opt/ && \
+    ln -s /opt/signal-cli-0.12.3/bin/signal-cli /usr/local/bin/signal-cli
+
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Final
+FROM python:3.11-slim-bullseye
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    iproute2 \
+    net-tools \
+    macchanger \
+    dsniff \
+    hping3 \
+    traceroute \
+    dnsutils \
+    whois \
+    curl \
+    wget \
+    netcat-openbsd \
+    nmap \
+    sqlite3 \
+    procps \
+    tcpdump \
+    tcpreplay \
+    tshark \
+    iputils-ping \
+    arp-scan \
+    nbtscan \
+    openssl \
+    ca-certificates \
+    chromium \
+    chromium-driver \
+    xvfb \
+    libpcap-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy signal-cli from builder
+COPY --from=builder /opt/signal-cli-0.12.3 /opt/signal-cli
+RUN ln -s /opt/signal-cli/bin/signal-cli /usr/local/bin/signal-cli
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+ENV PATH=/root/.local/bin:$PATH
+
+# Create application user
+RUN useradd -m -s /bin/bash spoof53 && \
+    mkdir -p /home/spoof53/.spoof53 && \
+    chown -R spoof53:spoof53 /home/spoof53
+
+WORKDIR /home/spoof53
+
+# Copy application files
+COPY --chown=spoof53:spoof53 . .
+
+# Create required directories
+RUN mkdir -p .spoof53/reports .spoof53/phishing .spoof53/credentials .spoof53/ssh_keys \
+    .spoof53/whatsapp_session .spoof53/signal_session .spoof53/history .spoof53/traffic_logs
+
+# Set permissions
+RUN chmod +x spoof53.py && \
+    chmod 755 .spoof53
+
+# Install additional Python packages that might be missing
+RUN pip install --no-cache-dir --user \
+    selenium \
+    webdriver-manager \
+    slack-sdk \
+    slack-socket-mode \
+    telethon \
+    discord.py \
+    paramiko \
+    scapy \
+    pyshorteners \
+    qrcode \
+    python-whois \
+    && rm -rf /root/.cache/pip
+
+# Switch to non-root user
+USER spoof53
+
+# Environment variables
+ENV PYTHONUNBUFFERED=1 \
+    DISPLAY=:99 \
+    PYTHONPATH=/home/spoof53
+
+# Expose ports for various services
+EXPOSE 8080 8081 8082 8083 8443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import socket; s=socket.socket(); s.connect(('localhost', 8080)); s.close()" || exit 1
+
+# Run the application
+CMD ["python3", "spoof53.py"]

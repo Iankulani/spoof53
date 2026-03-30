@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.spoof53/
+
+# Git
+.git/
+.gitignore
+.gitlab-ci.yml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+reports/
+
+# Session data
+whatsapp_session/
+signal_session/
+ssh_keys/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Tests
+tests/
+htmlcov/
+.coverage
+.pytest_cache/
+
+# Documentation
+docs/
+*.md

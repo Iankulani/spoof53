@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  spoof53:
+    build: .
+    container_name: spoof53
+    hostname: spoof53
+    privileged: true  # Required for network spoofing
+    network_mode: host  # Use host network for full network access
+    volumes:
+      # Persistent data
+      - spoof53_data:/home/spoof53/.spoof53
+      # Mount for reports
+      - ./reports:/home/spoof53/spoof53_reports
+      # SSH keys
+      - ./ssh_keys:/home/spoof53/.spoof53/ssh_keys
+      # WhatsApp session
+      - ./whatsapp_session:/home/spoof53/.spoof53/whatsapp_session
+      # Signal session
+      - ./signal_session:/home/spoof53/.spoof53/signal_session
+      # Logs
+      - ./logs:/home/spoof53/.spoof53/logs
+    environment:
+      - TZ=UTC
+      - PYTHONUNBUFFERED=1
+      - DISPLAY=:99
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_ADMIN
+      - SYS_PTRACE
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  spoof53_data:
+    driver: local
